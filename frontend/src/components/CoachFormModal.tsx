@@ -1,87 +1,203 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import RatingStars from './RatingStars';
-import StatusToggle from './StatusToggle';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import RatingStars from "./RatingStars";
 
+// shadcn/ui
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 const schema = z.object({
-name: z.string().min(2),
-email: z.string().email(),
-category: z.string().min(2),
-rating: z.number().min(1).max(5),
-status: z.enum(['active','inactive'])
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Valid email is required"),
+  category: z.string().min(2, "Category is required"),
+  rating: z.number().min(1).max(5),
+  status: z.enum(["active", "inactive"]),
 });
-
 
 type FormData = z.infer<typeof schema>;
 
-
 type Props = {
-open: boolean;
-initial?: Partial<FormData>;
-onSubmit: (data: FormData) => void;
-onClose: () => void;
+  open: boolean;
+  initial?: Partial<FormData>;
+  onSubmit: (data: FormData) => void;
+  onClose: () => void;
 };
 
-
-export default function CoachFormModal({ open, initial, onSubmit, onClose }: Props) {
-  const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm<FormData>({
+export default function CoachFormModal({
+  open,
+  initial,
+  onSubmit,
+  onClose,
+}: Props) {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '', email: '', category: '', rating: 3, status: 'active' }
+    defaultValues: {
+      name: "",
+      email: "",
+      category: "",
+      rating: 3,
+      status: "active",
+    },
   });
 
+  // hydrate form on open/edit
   useEffect(() => {
-    if (open) reset({
-      name: initial?.name ?? '',
-      email: initial?.email ?? '',
-      category: initial?.category ?? '',
-      rating: initial?.rating ?? 3,
-      status: (initial?.status as 'active'|'inactive') ?? 'active'
-    });
+    if (open) {
+      reset({
+        name: initial?.name ?? "",
+        email: initial?.email ?? "",
+        category: initial?.category ?? "",
+        rating: initial?.rating ?? 3,
+        status: (initial?.status as "active" | "inactive") ?? "active",
+      });
+    }
   }, [open, initial, reset]);
 
-  const rating = watch('rating');
-  const status = watch('status');
+  const rating = watch("rating");
+  const status = watch("status");
+  const category = watch("category");
 
-  if (!open) return null;
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-neutral-900 rounded-xl max-w-md w-full p-6 space-y-4">
-        <h3 className="text-lg font-semibold">{initial ? 'Edit Coach' : 'Add Coach'}</h3>
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className="block text-sm mb-1">Name</label>
-            <input className="w-full px-3 py-2 rounded-lg border bg-transparent" {...register('name')} />
-            {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{initial ? "Edit Coach" : "Add Coach"}</DialogTitle>
+          <DialogDescription>
+            Fill the coach details and click {initial ? "Save" : "Create"}.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form
+          className="grid gap-4 py-2"
+          onSubmit={handleSubmit((data) => onSubmit(data))}
+        >
+          {/* Name */}
+          <div className="grid gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" placeholder="Jane Doe" {...register("name")} />
+            {errors.name && (
+              <p className="text-sm text-red-600">{errors.name.message}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm mb-1">Email</label>
-            <input className="w-full px-3 py-2 rounded-lg border bg-transparent" type="email" {...register('email')} />
-            {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
+
+          {/* Email */}
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="jane@coach.com"
+              {...register("email")}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-600">{errors.email.message}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm mb-1">Category</label>
-            <input className="w-full px-3 py-2 rounded-lg border bg-transparent" {...register('category')} />
-            {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category.message}</p>}
+
+          {/* Category (Select) */}
+          <div className="grid gap-2">
+            <Label>Category</Label>
+            <Select
+              value={category}
+              onValueChange={(val) => setValue("category", val, { shouldValidate: true })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Fitness">Fitness</SelectItem>
+                <SelectItem value="Yoga">Yoga</SelectItem>
+                <SelectItem value="Cricket">Cricket</SelectItem>
+                <SelectItem value="Football">Football</SelectItem>
+                <SelectItem value="Basketball">Basketball</SelectItem>
+                <SelectItem value="Tennis">Tennis</SelectItem>
+                <SelectItem value="Swimming">Swimming</SelectItem>
+                <SelectItem value="Gymnastics">Gymnastics</SelectItem>
+                <SelectItem value="Meditation">Meditation</SelectItem>
+                <SelectItem value="Life Coach">Life Coach</SelectItem>
+                <SelectItem value="Nutrition">Nutrition</SelectItem>
+                <SelectItem value="Mental Health">Mental Health</SelectItem>
+                <SelectItem value="Stress Management">Stress Management</SelectItem>
+                <SelectItem value="Public Speaking">Public Speaking</SelectItem>
+                <SelectItem value="Career Development">Career Development</SelectItem>
+                <SelectItem value="Language Coach">Language Coach</SelectItem>
+                <SelectItem value="Academic Tutor">Academic Tutor</SelectItem>
+                <SelectItem value="Personal Finance">Personal Finance</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-sm text-red-600">{errors.category.message}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm mb-1">Rating</label>
-            <RatingStars value={rating} onChange={(value) => setValue('rating', value)} />
-            {errors.rating && <p className="text-sm text-red-500 mt-1">{errors.rating.message}</p>}
+
+          {/* Rating + Status */}
+          <div className="grid sm:grid-cols-2 gap-4 items-start">
+            <div className="grid gap-2">
+              <Label>Rating</Label>
+              <RatingStars value={rating} onChange={(n) => setValue("rating", n)} />
+              {errors.rating && (
+                <p className="text-sm text-red-600">{errors.rating.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Status</Label>
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={status === "active"}
+                  onCheckedChange={(checked) =>
+                    setValue("status", checked ? "active" : "inactive")
+                  }
+                  id="status"
+                />
+                <Label htmlFor="status" className="text-sm text-neutral-600">
+                  {status === "active" ? "Active" : "Inactive"}
+                </Label>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm mb-1">Status</label>
-            <StatusToggle checked={status === 'active'} onChange={(checked) => setValue('status', checked ? 'active' : 'inactive')} />
-            {errors.status && <p className="text-sm text-red-500 mt-1">{errors.status.message}</p>}
-          </div>
-          <div className="flex justify-end gap-2">
-            <button type="button" className="px-3 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-800" onClick={onClose}>Cancel</button>
-            <button type="submit" className="px-3 py-2 rounded-lg bg-blue-600 text-white">Save</button>
-          </div>
+
+          <DialogFooter className="mt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {initial ? "Save" : "Create"}
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

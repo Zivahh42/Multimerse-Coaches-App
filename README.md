@@ -1,21 +1,34 @@
-# Multimerse — Coaches Admin Panel
+# 🏋️ Multimerse — Coaches Admin Panel
 
+A minimal full-stack **Admin Panel** to manage Coaches with end-to-end CRUD functionality.  
+Built with **React + TypeScript + Tailwind** on the frontend and **Express + lowdb** on the backend.
 
-End-to-end CRUD for **Coach** entity with a clean React UI and Node API.
+---
 
+## 🧰 Tech Stack
 
-## Tech
-- Frontend: React + TS + Tailwind + React Query + RHF + Zod + Axios + Sonner
-- Backend: Express + lowdb (JSON) + Zod + nanoid + CORS
+- **Frontend:** React + Vite + TypeScript + Tailwind CSS + React Query + React Hook Form + Zod + Axios + Sonner (toast)
+- **Backend:** Node.js (Express) + lowdb (JSON DB) + Zod + nanoid + CORS
+- **Deployment (optional):** Vercel (frontend), Render (backend)
 
+---
 
-## Getting Started
+## 🚀 Features
 
+- ✅ Add / Edit / Delete coach records  
+- ✅ Search & filter by name, email, and category  
+- ⭐ Star-based rating display (1–5)  
+- 🔁 Status toggle (Active / Inactive)  
+- 🧾 Form validation with Zod  
+- 📡 React Query for state management  
+- 🪄 Toast notifications for UX  
+- 💾 Persistent data stored in `backend/db/coaches.json`
 
-### Backend
+---
+
+## 🖥️ Local Development Setup
+
+### 1. Clone the Repo
 ```bash
-cd backend
-cp .env.example .env
-npm i
-npm run dev
-# API → http://localhost:4000
+git clone <your-repo-url>
+cd multimerse-coaches-admin

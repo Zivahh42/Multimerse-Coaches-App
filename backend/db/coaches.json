@@ -1,20 +1,22 @@
-{ "coaches": [
 {
-"id": "seed1",
-"name": "Ananya Rao",
-"email": "ananya@fitcoach.com",
-"category": "Fitness",
-"rating": 5,
-"status": "active",
-"createdAt": "2025-01-01T10:00:00.000Z"
-},
-{
-"id": "seed2",
-"name": "Rahul Verma",
-"email": "rahul@yogaflow.com",
-"category": "Yoga",
-"rating": 4,
-"status": "inactive",
-"createdAt": "2025-02-10T12:00:00.000Z"
+  "coaches": [
+    {
+      "id": "seed2",
+      "name": "rahul",
+      "email": "rahul@yogaflow.com",
+      "category": "Yoga",
+      "rating": 4,
+      "status": "active",
+      "createdAt": "2025-02-10T12:00:00.000Z"
+    },
+    {
+      "id": "UEMM_uy2SWG_gqCWcv2R5",
+      "name": "zack",
+      "email": "zackie@email.com",
+      "category": "Cricket",
+      "rating": 5,
+      "status": "inactive",
+      "createdAt": "2025-10-26T15:52:11.175Z"
+    }
+  ]
 }
-] }
