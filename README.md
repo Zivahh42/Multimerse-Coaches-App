@@ -272,8 +272,3 @@ Add a few images/GIFs showing:
   - `PORT` (Render provides)  
   - `CORS_ORIGIN=https://<your-vercel-app>.vercel.app`
   - (Optional) Persistent Disk: mount `/data`, set `DATA_DIR=/data`
-
----
-
-## 📄 License
-MIT
