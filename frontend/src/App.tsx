@@ -29,21 +29,29 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
-  const { data = [] } = useQuery<Coach[]>({
-    queryKey: ['coaches', { search, category }],
-    queryFn: async () => {
-      const params: any = {};
-      if (search) params.q = search;
-      if (category) params.category = category;
-      const res = await api.get('/coaches', { params });
-      return res.data as Coach[];
-    }
-  });
+    const { data: allCoaches = [] } = useQuery<Coach[]>({
+      queryKey: ['coaches'],
+      queryFn: async () => {
+        const res = await api.get('/coaches');
+        return res.data as Coach[];
+      }
+    });
 
-  const categories = useMemo(
-    () => Array.from(new Set(data.map(d => d.category))).sort(),
-    [data]
-  );
+    const { data: filteredCoaches = [] } = useQuery<Coach[]>({
+      queryKey: ['coaches', { search, category }],
+      queryFn: async () => {
+        const params: any = {};
+        if (search) params.q = search;
+        if (category !== 'All') params.category = category;
+        const res = await api.get('/coaches', { params });
+        return res.data as Coach[];
+      }
+    });
+
+    const categories = useMemo(
+      () => Array.from(new Set(allCoaches.map(d => d.category).filter(Boolean))).sort(),
+      [allCoaches]
+    );
 
   const createMutation = useMutation({
     mutationFn: async (body: Omit<Coach, 'id' | 'createdAt'>) =>
@@ -108,10 +116,10 @@ export default function App() {
         setSearch={setSearch}
         category={category}
         setCategory={setCategory}
-        categories={['All', ...categories]}
+        categories={categories}
       />
 
-      <CoachesTable data={data} onEdit={onEdit} onDelete={onDelete} />
+    <CoachesTable data={filteredCoaches} onEdit={onEdit} onDelete={onDelete} />
 
       {/* Existing modal kept for now */}
       <CoachFormModal
